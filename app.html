@@ -424,14 +424,15 @@ async function completeSale() {
         body: JSON.stringify({
           sale_id: saleId,
           product_id: item.productId,
-          product_name: item.name,
-          weight: item.weight,
-          price: item.price,
-          total: Number(item.total.toFixed(2))
+          weight_kg: item.weight,
+          unit_price: item.price,
+          line_total: Number(item.total.toFixed(2))
         })
       });
 
-      const product = products.find(p => Number(p.id) === Number(item.productId));
+      const product = products.find(
+        p => Number(p.id) === Number(item.productId)
+      );
 
       if (product) {
         const newStock = Math.max(
