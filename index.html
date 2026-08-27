@@ -238,7 +238,9 @@ async function api(path, options = {}) {
       "apikey": SUPABASE_KEY,
       "Authorization": "Bearer " + SUPABASE_KEY,
       "Content-Type": "application/json",
-      "Prefer": options.method === "POST" ? "return=representation" : "return=minimal",
+      "Prefer": options.method === "POST"
+        ? "return=representation"
+        : "return=minimal",
       ...(options.headers || {})
     }
   });
@@ -254,6 +256,7 @@ async function api(path, options = {}) {
 
 function setStatus(text, error=false) {
   const box = document.getElementById("status");
+
   box.textContent = text;
   box.style.background = error ? "#fdecec" : "#eef7ee";
   box.style.color = error ? "#a11" : "#216b21";
@@ -268,27 +271,43 @@ async function loadData() {
     renderCart();
 
     setStatus("متصل بقاعدة البيانات أونلاين ✅");
+
   } catch (error) {
     console.error(error);
     setStatus("حدث خطأ في الاتصال بقاعدة البيانات", true);
-    alert("تعذر الاتصال بقاعدة البيانات. تأكد من إعدادات Supabase.");
+
+    alert(
+      "تعذر الاتصال بقاعدة البيانات.\n\n" +
+      error.message
+    );
   }
 }
 
 function showPage(id, button) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+  document.querySelectorAll(".page")
+    .forEach(p => p.classList.remove("active"));
 
-  document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+  document.getElementById(id)
+    .classList.add("active");
+
+  document.querySelectorAll(".nav button")
+    .forEach(b => b.classList.remove("active"));
+
   button.classList.add("active");
 
   renderAll();
 }
 
 async function addProduct() {
-  const name = document.getElementById("productName").value.trim();
-  const price = Number(document.getElementById("productPrice").value);
-  const stock = Number(document.getElementById("productStock").value);
+
+  const name =
+    document.getElementById("productName").value.trim();
+
+  const price =
+    Number(document.getElementById("productPrice").value);
+
+  const stock =
+    Number(document.getElementById("productStock").value);
 
   if (!name || price <= 0 || stock < 0) {
     alert("اكتب بيانات المنتج بشكل صحيح");
@@ -296,8 +315,10 @@ async function addProduct() {
   }
 
   try {
+
     await api("products", {
       method: "POST",
+
       body: JSON.stringify({
         name: name,
         price: price,
@@ -310,36 +331,55 @@ async function addProduct() {
     document.getElementById("productStock").value = "";
 
     await loadData();
+
     alert("تم إضافة المنتج أونلاين ✅");
 
   } catch (error) {
+
     console.error(error);
-    alert("حصل خطأ أثناء إضافة المنتج");
+
+    alert(
+      "حصل خطأ أثناء إضافة المنتج:\n\n" +
+      error.message
+    );
   }
 }
 
 async function deleteProduct(id) {
+
   if (!confirm("هل تريد حذف المنتج؟")) return;
 
   try {
+
     await api("products?id=eq." + id, {
       method: "DELETE"
     });
 
     await loadData();
+
     alert("تم حذف المنتج");
 
   } catch (error) {
+
     console.error(error);
-    alert("حصل خطأ أثناء حذف المنتج");
+
+    alert(
+      "حصل خطأ أثناء حذف المنتج:\n\n" +
+      error.message
+    );
   }
 }
 
 function addToCart() {
-  const id = Number(document.getElementById("cashProduct").value);
-  const weight = Number(document.getElementById("cashWeight").value);
 
-  const product = products.find(p => Number(p.id) === id);
+  const id =
+    Number(document.getElementById("cashProduct").value);
+
+  const weight =
+    Number(document.getElementById("cashWeight").value);
+
+  const product =
+    products.find(p => Number(p.id) === id);
 
   if (!product) {
     alert("اختار المنتج");
@@ -365,198 +405,423 @@ function addToCart() {
   });
 
   document.getElementById("cashWeight").value = "";
+
   renderCart();
 }
 
 function removeFromCart(index) {
+
   cart.splice(index, 1);
+
   renderCart();
 }
 
 function renderCart() {
-  const box = document.getElementById("cart");
+
+  const box =
+    document.getElementById("cart");
 
   if (cart.length === 0) {
-    box.innerHTML = '<div class="empty">الفاتورة فارغة</div>';
-    document.getElementById("cartTotal").textContent = "0";
+
+    box.innerHTML =
+      '<div class="empty">الفاتورة فارغة</div>';
+
+    document.getElementById("cartTotal")
+      .textContent = "0";
+
     return;
   }
 
   let total = 0;
 
-  box.innerHTML = cart.map((item, index) => {
-    total += item.total;
+  box.innerHTML =
+    cart.map((item, index) => {
 
-    return `
-      <div style="padding:10px 0;border-bottom:1px solid #eee">
-        <b>${escapeHtml(item.name)}</b><br>
-        ${item.weight} كجم × ${item.price} ج.م =
-        <b>${item.total.toFixed(2)} ج.م</b>
-        <button class="delete" onclick="removeFromCart(${index})">حذف</button>
-      </div>
-    `;
-  }).join("");
+      total += item.total;
 
-  document.getElementById("cartTotal").textContent = total.toFixed(2);
+      return `
+        <div style="padding:10px 0;border-bottom:1px solid #eee">
+
+          <b>${escapeHtml(item.name)}</b>
+          <br>
+
+          ${item.weight} كجم ×
+          ${item.price} ج.م =
+
+          <b>${item.total.toFixed(2)} ج.م</b>
+
+          <button
+            class="delete"
+            onclick="removeFromCart(${index})">
+            حذف
+          </button>
+
+        </div>
+      `;
+
+    }).join("");
+
+  document.getElementById("cartTotal")
+    .textContent = total.toFixed(2);
 }
 
 async function completeSale() {
+
   if (cart.length === 0) {
     alert("الفاتورة فارغة");
     return;
   }
 
   try {
-    const total = cart.reduce((sum, item) => sum + item.total, 0);
+
+    const total =
+      cart.reduce(
+        (sum, item) => sum + item.total,
+        0
+      );
+
+    /*
+      أولاً نسجل الفاتورة في sales
+    */
 
     const saleResult = await api("sales", {
+
       method: "POST",
+
       body: JSON.stringify({
-        total: Number(total.toFixed(2))
+
+        total: Number(
+          total.toFixed(2)
+        )
+
       })
+
     });
 
-    const saleId = saleResult[0].id;
+    if (!saleResult || !saleResult.length) {
+      throw new Error(
+        "لم يتم إنشاء رقم الفاتورة"
+      );
+    }
+
+    const saleId =
+      saleResult[0].id;
+
+    /*
+      تسجيل أصناف الفاتورة
+
+      أسماء الأعمدة مطابقة لجدول
+      sale_items عندك:
+      sale_id
+      product_id
+      weight_kg
+      unit_price
+      line_total
+    */
 
     for (const item of cart) {
+
       await api("sale_items", {
+
         method: "POST",
+
         body: JSON.stringify({
+
           sale_id: saleId,
+
           product_id: item.productId,
-          product_name: item.name,
-          weight: item.weight,
-          price: item.price,
-          total: Number(item.total.toFixed(2))
+
+          weight_kg: item.weight,
+
+          unit_price: item.price,
+
+          line_total: Number(
+            item.total.toFixed(2)
+          )
+
         })
+
       });
 
-      const product = products.find(p => Number(p.id) === Number(item.productId));
+      /*
+        خصم الكمية من المخزون
+      */
 
-      if (product) {
-        const newStock = Math.max(
-          0,
-          Number(product.stock) - Number(item.weight)
+      const product =
+        products.find(
+          p =>
+            Number(p.id) ===
+            Number(item.productId)
         );
 
-        await api("products?id=eq." + item.productId, {
-          method: "PATCH",
-          body: JSON.stringify({
-            stock: Number(newStock.toFixed(2))
-          })
-        });
+      if (product) {
+
+        const newStock =
+          Math.max(
+            0,
+            Number(product.stock) -
+            Number(item.weight)
+          );
+
+        await api(
+          "products?id=eq." +
+          item.productId,
+          {
+
+            method: "PATCH",
+
+            body: JSON.stringify({
+
+              stock: Number(
+                newStock.toFixed(2)
+              )
+
+            })
+
+          }
+        );
       }
     }
 
     cart = [];
 
     await loadData();
+
     renderCart();
 
-    alert("تم تسجيل الفاتورة وخصم المخزون أونلاين ✅");
+    alert(
+      "تم تسجيل الفاتورة وخصم المخزون أونلاين ✅"
+    );
 
   } catch (error) {
-    console.error(error);
-    alert("حصل خطأ أثناء تسجيل الفاتورة");
+
+    console.error(
+      "SALE ERROR:",
+      error
+    );
+
+    alert(
+      "حصل خطأ أثناء تسجيل الفاتورة:\n\n" +
+      error.message
+    );
   }
 }
 
 function renderProducts() {
-  const table = document.getElementById("productsTable");
+
+  const table =
+    document.getElementById("productsTable");
 
   if (products.length === 0) {
+
     table.innerHTML =
-      '<tr><td colspan="5" class="empty">لا توجد منتجات حتى الآن</td></tr>';
+      '<tr><td colspan="5" class="empty">' +
+      'لا توجد منتجات حتى الآن' +
+      '</td></tr>';
+
     return;
   }
 
-  table.innerHTML = products.map(p => `
-    <tr>
-      <td>${escapeHtml(p.name)}</td>
-      <td>${Number(p.price).toFixed(2)} ج.م</td>
-      <td>${Number(p.stock).toFixed(2)} كجم</td>
-      <td>${(Number(p.price) * Number(p.stock)).toFixed(2)} ج.م</td>
-      <td>
-        <button class="delete" onclick="deleteProduct(${p.id})">حذف</button>
-      </td>
-    </tr>
-  `).join("");
+  table.innerHTML =
+    products.map(p => `
+
+      <tr>
+
+        <td>
+          ${escapeHtml(p.name)}
+        </td>
+
+        <td>
+          ${Number(p.price).toFixed(2)} ج.م
+        </td>
+
+        <td>
+          ${Number(p.stock).toFixed(2)} كجم
+        </td>
+
+        <td>
+          ${
+            (
+              Number(p.price) *
+              Number(p.stock)
+            ).toFixed(2)
+          } ج.م
+        </td>
+
+        <td>
+
+          <button
+            class="delete"
+            onclick="deleteProduct(${p.id})">
+            حذف
+          </button>
+
+        </td>
+
+      </tr>
+
+    `).join("");
 }
 
 function renderStock() {
-  const table = document.getElementById("stockTable");
+
+  const table =
+    document.getElementById("stockTable");
 
   if (products.length === 0) {
+
     table.innerHTML =
-      '<tr><td colspan="4" class="empty">لا يوجد مخزون</td></tr>';
+      '<tr><td colspan="4" class="empty">' +
+      'لا يوجد مخزون' +
+      '</td></tr>';
+
     return;
   }
 
-  table.innerHTML = products.map(p => `
-    <tr>
-      <td>${escapeHtml(p.name)}</td>
-      <td>${Number(p.stock).toFixed(2)} كجم</td>
-      <td>${Number(p.price).toFixed(2)} ج.م</td>
-      <td>${(Number(p.price) * Number(p.stock)).toFixed(2)} ج.م</td>
-    </tr>
-  `).join("");
+  table.innerHTML =
+    products.map(p => `
+
+      <tr>
+
+        <td>
+          ${escapeHtml(p.name)}
+        </td>
+
+        <td>
+          ${Number(p.stock).toFixed(2)} كجم
+        </td>
+
+        <td>
+          ${Number(p.price).toFixed(2)} ج.م
+        </td>
+
+        <td>
+          ${
+            (
+              Number(p.price) *
+              Number(p.stock)
+            ).toFixed(2)
+          } ج.م
+        </td>
+
+      </tr>
+
+    `).join("");
 }
 
 function renderCashProducts() {
-  const select = document.getElementById("cashProduct");
+
+  const select =
+    document.getElementById("cashProduct");
 
   if (products.length === 0) {
-    select.innerHTML = "<option>لا توجد منتجات</option>";
+
+    select.innerHTML =
+      "<option>لا توجد منتجات</option>";
+
     return;
   }
 
-  select.innerHTML = products.map(p => `
-    <option value="${p.id}">
-      ${escapeHtml(p.name)} — ${Number(p.price).toFixed(2)} ج.م/كجم
-    </option>
-  `).join("");
+  select.innerHTML =
+    products.map(p => `
+
+      <option value="${p.id}">
+
+        ${escapeHtml(p.name)}
+        —
+        ${Number(p.price).toFixed(2)}
+        ج.م/كجم
+
+      </option>
+
+    `).join("");
 }
 
 function renderDashboard() {
-  const today = new Date().toISOString().slice(0, 10);
 
-  const todaySales = sales
-    .filter(s => String(s.created_at).slice(0, 10) === today)
-    .reduce((sum, s) => sum + Number(s.total), 0);
+  const today =
+    new Date()
+      .toISOString()
+      .slice(0, 10);
 
-  const stockValue = products
-    .reduce((sum, p) => sum + Number(p.price) * Number(p.stock), 0);
+  const todaySales =
+    sales
 
-  document.getElementById("salesToday").textContent =
-    todaySales.toFixed(2) + " ج.م";
+      .filter(
+        s =>
+          String(s.created_at)
+            .slice(0, 10) === today
+      )
 
-  document.getElementById("invoiceCount").textContent =
+      .reduce(
+        (sum, s) =>
+          sum + Number(s.total),
+        0
+      );
+
+  const stockValue =
+    products.reduce(
+
+      (sum, p) =>
+
+        sum +
+        Number(p.price) *
+        Number(p.stock),
+
+      0
+    );
+
+  document.getElementById(
+    "salesToday"
+  ).textContent =
+    todaySales.toFixed(2) +
+    " ج.م";
+
+  document.getElementById(
+    "invoiceCount"
+  ).textContent =
     sales.length;
 
-  document.getElementById("productCount").textContent =
+  document.getElementById(
+    "productCount"
+  ).textContent =
     products.length;
 
-  document.getElementById("stockValue").textContent =
-    stockValue.toFixed(2) + " ج.م";
+  document.getElementById(
+    "stockValue"
+  ).textContent =
+    stockValue.toFixed(2) +
+    " ج.م";
 }
 
 function renderAll() {
+
   renderProducts();
+
   renderStock();
+
   renderCashProducts();
+
   renderDashboard();
 }
 
 function escapeHtml(value) {
+
   return String(value)
+
     .replaceAll("&", "&amp;")
+
     .replaceAll("<", "&lt;")
+
     .replaceAll(">", "&gt;")
+
     .replaceAll('"', "&quot;")
+
     .replaceAll("'", "&#039;");
 }
 
 loadData();
+
 </script>
 
 </body>
