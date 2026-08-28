@@ -241,7 +241,6 @@ th,td{
   text-align:center
 }
 
-/* فاتورة الطباعة */
 .receipt{
   background:#fff;
   max-width:420px;
@@ -308,7 +307,6 @@ th,td{
 
 <body>
 
-<!-- LOGIN -->
 <div id="loginScreen">
 
   <div class="loginBox">
@@ -344,8 +342,6 @@ th,td{
 
 </div>
 
-
-<!-- APP -->
 <div id="app" class="hidden">
 
 <header>
@@ -373,52 +369,36 @@ th,td{
 
 </header>
 
-
 <div class="container">
 
 <div id="status" class="status">
   جاري الاتصال بقاعدة البيانات...
 </div>
 
-
-<!-- NAV -->
 <div class="nav">
 
-<button
-  class="active"
-  onclick="showPage('dashboard',this)"
->
+<button class="active" onclick="showPage('dashboard',this)">
   🏠 الرئيسية
 </button>
 
-<button
-  onclick="showPage('products',this)"
->
+<button onclick="showPage('products',this)">
   🥩 المنتجات
 </button>
 
-<button
-  onclick="showPage('stock',this)"
->
+<button onclick="showPage('stock',this)">
   📦 المخزون
 </button>
 
-<button
-  onclick="showPage('cashier',this)"
->
+<button onclick="showPage('cashier',this)">
   🧾 الكاشير
 </button>
 
-<button
-  onclick="showPage('sales',this)"
->
+<button onclick="showPage('sales',this)">
   📋 المبيعات
 </button>
 
 </div>
 
-
-<!-- DASHBOARD -->
 <section id="dashboard" class="page active">
 
 <h1>لوحة التحكم</h1>
@@ -463,8 +443,6 @@ th,td{
 
 </section>
 
-
-<!-- PRODUCTS -->
 <section id="products" class="page">
 
 <h1>🥩 المنتجات</h1>
@@ -501,7 +479,6 @@ th,td{
 
 </div>
 
-
 <div class="box" style="margin-top:20px">
 
 <h3>قائمة المنتجات</h3>
@@ -528,8 +505,6 @@ th,td{
 
 </section>
 
-
-<!-- STOCK -->
 <section id="stock" class="page">
 
 <h1>📦 المخزون</h1>
@@ -559,8 +534,6 @@ th,td{
 
 </section>
 
-
-<!-- CASHIER -->
 <section id="cashier" class="page">
 
 <h1>🧾 الكاشير</h1>
@@ -588,7 +561,6 @@ th,td{
 </button>
 
 </div>
-
 
 <div class="box">
 
@@ -619,8 +591,6 @@ th,td{
 
 </section>
 
-
-<!-- SALES -->
 <section id="sales" class="page">
 
 <h1>📋 المبيعات والفواتير</h1>
@@ -650,19 +620,12 @@ th,td{
 
 </div>
 
-
-<!-- RECEIPT -->
-<div
-  id="receiptBox"
-  class="hidden"
-></div>
+<div id="receiptBox" class="hidden"></div>
 
 </section>
 
-
 </div>
 </div>
-
 
 <script>
 
@@ -670,29 +633,28 @@ const SUPABASE_URL =
 "https://atfhwssyxtjzucftorfh.supabase.co";
 
 const SUPABASE_KEY =
-"sb_publishable_pBDAFBhY17xfTjol-K2vFQ_8oxNUZtp";
+"sb_publishable_pBDAFBhY17xfTjol-K2vF2vF_8oxNUZtp";
 
-
-let products = [];
-let sales = [];
-let cart = [];
+let products=[];
+let sales=[];
+let cart=[];
 
 
 /* =========================
-   SUPABASE API
+   API
 ========================= */
 
-async function api(path, options = {}){
+async function api(path,options={}){
 
-  const token =
+  const token=
     localStorage.getItem(
       "supabase_access_token"
     );
 
-  const response =
+  const response=
     await fetch(
-      SUPABASE_URL +
-      "/rest/v1/" +
+      SUPABASE_URL+
+      "/rest/v1/"+
       path,
       {
         ...options,
@@ -701,34 +663,34 @@ async function api(path, options = {}){
           "apikey":SUPABASE_KEY,
 
           "Authorization":
-            "Bearer " +
-            (token || SUPABASE_KEY),
+            "Bearer "+
+            (token||SUPABASE_KEY),
 
           "Content-Type":
             "application/json",
 
           "Prefer":
-            options.method === "POST"
+            options.method==="POST"
             ? "return=representation"
             : "return=minimal",
 
-          ...(options.headers || {})
+          ...(options.headers||{})
         }
       }
     );
 
   if(!response.ok){
 
-    const text =
+    const text=
       await response.text();
 
     throw new Error(
-      text ||
+      text||
       "Database error"
     );
   }
 
-  const text =
+  const text=
     await response.text();
 
   return text
@@ -743,30 +705,29 @@ async function api(path, options = {}){
 
 async function login(){
 
-  const email =
+  const email=
     document.getElementById(
       "loginEmail"
     ).value.trim();
 
-  const password =
+  const password=
     document.getElementById(
       "loginPassword"
     ).value;
 
-  const message =
+  const message=
     document.getElementById(
       "loginMessage"
     );
 
-  const button =
+  const button=
     document.getElementById(
       "loginButton"
     );
 
+  if(!email||!password){
 
-  if(!email || !password){
-
-    message.textContent =
+    message.textContent=
       "اكتب البريد الإلكتروني وكلمة المرور";
 
     message.style.color="#a11";
@@ -774,20 +735,15 @@ async function login(){
     return;
   }
 
-
   button.disabled=true;
-
-  button.textContent =
+  button.textContent=
     "جاري تسجيل الدخول...";
-
-  message.textContent="";
-
 
   try{
 
-    const response =
+    const response=
       await fetch(
-        SUPABASE_URL +
+        SUPABASE_URL+
         "/auth/v1/token?grant_type=password",
         {
           method:"POST",
@@ -805,32 +761,18 @@ async function login(){
         }
       );
 
-
-    const data =
+    const data=
       await response.json();
-
 
     if(!response.ok){
 
       throw new Error(
-        data.error_description ||
-        data.msg ||
-        data.message ||
+        data.error_description||
+        data.msg||
+        data.message||
         "بيانات الدخول غير صحيحة"
       );
     }
-
-
-    if(
-      !data.access_token ||
-      !data.user
-    ){
-
-      throw new Error(
-        "فشل تسجيل الدخول"
-      );
-    }
-
 
     localStorage.setItem(
       "supabase_access_token",
@@ -839,7 +781,7 @@ async function login(){
 
     localStorage.setItem(
       "supabase_refresh_token",
-      data.refresh_token || ""
+      data.refresh_token||""
     );
 
     localStorage.setItem(
@@ -847,28 +789,22 @@ async function login(){
       data.user.id
     );
 
-
-    /* التأكد من Admin */
-
-    const roleResponse =
+    const roleResponse=
       await fetch(
-        SUPABASE_URL +
-        "/rest/v1/user_roles?user_id=eq." +
-        encodeURIComponent(
-          data.user.id
-        ) +
+        SUPABASE_URL+
+        "/rest/v1/user_roles?user_id=eq."+
+        encodeURIComponent(data.user.id)+
         "&select=role",
         {
           headers:{
             "apikey":SUPABASE_KEY,
 
             "Authorization":
-              "Bearer " +
+              "Bearer "+
               data.access_token
           }
         }
       );
-
 
     if(!roleResponse.ok){
 
@@ -877,14 +813,12 @@ async function login(){
       );
     }
 
-
-    const roles =
+    const roles=
       await roleResponse.json();
 
-
     if(
-      !roles.length ||
-      roles[0].role !== "admin"
+      !roles.length||
+      roles[0].role!=="admin"
     ){
 
       clearSession();
@@ -894,26 +828,22 @@ async function login(){
       );
     }
 
-
     document
       .getElementById("loginScreen")
       .classList.add("hidden");
-
 
     document
       .getElementById("app")
       .classList.remove("hidden");
 
-
     await loadData();
-
 
   }catch(error){
 
     console.error(error);
 
-    message.textContent =
-      error.message ||
+    message.textContent=
+      error.message||
       "فشل تسجيل الدخول";
 
     message.style.color="#a11";
@@ -922,7 +852,7 @@ async function login(){
 
     button.disabled=false;
 
-    button.textContent =
+    button.textContent=
       "تسجيل الدخول";
   }
 }
@@ -934,18 +864,17 @@ async function login(){
 
 async function logout(){
 
-  const token =
+  const token=
     localStorage.getItem(
       "supabase_access_token"
     );
-
 
   try{
 
     if(token){
 
       await fetch(
-        SUPABASE_URL +
+        SUPABASE_URL+
         "/auth/v1/logout",
         {
           method:"POST",
@@ -954,7 +883,7 @@ async function logout(){
             "apikey":SUPABASE_KEY,
 
             "Authorization":
-              "Bearer " + token
+              "Bearer "+token
           }
         }
       );
@@ -979,10 +908,6 @@ async function logout(){
     document
       .getElementById("loginScreen")
       .classList.remove("hidden");
-
-    document
-      .getElementById("loginPassword")
-      .value="";
   }
 }
 
@@ -1004,18 +929,17 @@ function clearSession(){
 
 
 /* =========================
-   LOAD DATA
+   LOAD
 ========================= */
 
 async function loadData(){
 
   try{
 
-    const token =
+    const token=
       localStorage.getItem(
         "supabase_access_token"
       );
-
 
     if(!token){
 
@@ -1023,39 +947,34 @@ async function loadData(){
       return;
     }
 
-
-    products =
+    products=
       await api(
         "products?select=*&order=id.asc",
         {
           headers:{
             "Authorization":
-              "Bearer " + token
+              "Bearer "+token
           }
         }
-      ) || [];
+      )||[];
 
-
-    sales =
+    sales=
       await api(
         "sales?select=*&order=id.desc",
         {
           headers:{
             "Authorization":
-              "Bearer " + token
+              "Bearer "+token
           }
         }
-      ) || [];
-
+      )||[];
 
     renderAll();
-
     renderCart();
 
     setStatus(
       "متصل بقاعدة البيانات أونلاين ✅"
     );
-
 
   }catch(error){
 
@@ -1066,30 +985,13 @@ async function loadData(){
       true
     );
 
-
-    if(
-      String(error.message)
-        .includes("401") ||
-      String(error.message)
-        .includes("JWT")
-    ){
-
-      logout();
-
-    }else{
-
-      alert(
-        "تعذر تحميل البيانات:\n\n" +
-        error.message
-      );
-    }
+    alert(
+      "تعذر تحميل البيانات:\n\n"+
+      error.message
+    );
   }
 }
 
-
-/* =========================
-   LOGIN SCREEN
-========================= */
 
 function showLogin(){
 
@@ -1103,19 +1005,10 @@ function showLogin(){
 }
 
 
-/* =========================
-   STATUS
-========================= */
+function setStatus(text,error=false){
 
-function setStatus(
-  text,
-  error=false
-){
-
-  const box =
-    document.getElementById(
-      "status"
-    );
+  const box=
+    document.getElementById("status");
 
   box.textContent=text;
 
@@ -1123,15 +1016,6 @@ function setStatus(
     "error",
     error
   );
-
-  if(!error){
-
-    box.style.background=
-      "#eef7ee";
-
-    box.style.color=
-      "#216b21";
-  }
 }
 
 
@@ -1139,42 +1023,27 @@ function setStatus(
    NAVIGATION
 ========================= */
 
-function showPage(
-  id,
-  button
-){
+function showPage(id,button){
 
   document
     .querySelectorAll(".page")
     .forEach(
-      p =>
-        p.classList.remove("active")
+      p=>p.classList.remove("active")
     );
-
 
   document
     .getElementById(id)
     .classList.add("active");
 
-
   document
     .querySelectorAll(".nav button")
     .forEach(
-      b =>
-        b.classList.remove("active")
+      b=>b.classList.remove("active")
     );
-
 
   button.classList.add("active");
 
-
   renderAll();
-
-
-  if(id==="sales"){
-
-    renderSales();
-  }
 }
 
 
@@ -1184,34 +1053,26 @@ function showPage(
 
 async function addProduct(){
 
-  const name =
+  const name=
     document
       .getElementById("productName")
-      .value
-      .trim();
+      .value.trim();
 
-
-  const price =
+  const price=
     Number(
       document
         .getElementById("productPrice")
         .value
     );
 
-
-  const stock =
+  const stock=
     Number(
       document
         .getElementById("productStock")
         .value
     );
 
-
-  if(
-    !name ||
-    price<=0 ||
-    stock<0
-  ){
+  if(!name||price<=0||stock<0){
 
     alert(
       "اكتب بيانات المنتج بشكل صحيح"
@@ -1220,24 +1081,12 @@ async function addProduct(){
     return;
   }
 
-
   try{
-
-    const token =
-      localStorage.getItem(
-        "supabase_access_token"
-      );
-
 
     await api(
       "products",
       {
         method:"POST",
-
-        headers:{
-          "Authorization":
-            "Bearer " + token
-        },
 
         body:JSON.stringify({
           name:name,
@@ -1247,34 +1096,28 @@ async function addProduct(){
       }
     );
 
+    document.getElementById(
+      "productName"
+    ).value="";
 
-    document
-      .getElementById("productName")
-      .value="";
+    document.getElementById(
+      "productPrice"
+    ).value="";
 
-    document
-      .getElementById("productPrice")
-      .value="";
-
-    document
-      .getElementById("productStock")
-      .value="";
-
+    document.getElementById(
+      "productStock"
+    ).value="";
 
     await loadData();
-
 
     alert(
       "تم إضافة المنتج أونلاين ✅"
     );
 
-
   }catch(error){
 
-    console.error(error);
-
     alert(
-      "حصل خطأ أثناء إضافة المنتج:\n\n" +
+      "حصل خطأ أثناء إضافة المنتج:\n\n"+
       error.message
     );
   }
@@ -1282,7 +1125,7 @@ async function addProduct(){
 
 
 /* =========================
-   DELETE PRODUCT
+   SAFE DELETE
 ========================= */
 
 async function deleteProduct(id){
@@ -1292,47 +1135,64 @@ async function deleteProduct(id){
       "هل تريد حذف المنتج؟"
     )
   ){
-
     return;
   }
 
-
   try{
 
-    const token =
-      localStorage.getItem(
-        "supabase_access_token"
+    /*
+      أولًا نبحث هل المنتج
+      مستخدم في أي فاتورة.
+    */
+
+    const usedItems=
+      await api(
+        "sale_items?product_id=eq."+
+        encodeURIComponent(id)+
+        "&select=id&limit=1"
+      )||[];
+
+    /*
+      لو المنتج موجود في فاتورة
+      لا نحذفه حتى لا نكسر
+      الفاتورة القديمة.
+    */
+
+    if(usedItems.length>0){
+
+      alert(
+        "لا يمكن حذف هذا المنتج لأنه موجود في فاتورة سابقة.\n\n"+
+        "تم الحفاظ عليه حتى تظل الفواتير القديمة سليمة."
       );
 
+      return;
+    }
+
+    /*
+      المنتج لم يستخدم في أي فاتورة،
+      لذلك يمكن حذفه بأمان.
+    */
 
     await api(
-      "products?id=eq." +
+      "products?id=eq."+
       encodeURIComponent(id),
       {
-        method:"DELETE",
-
-        headers:{
-          "Authorization":
-            "Bearer " + token
-        }
+        method:"DELETE"
       }
     );
 
-
     await loadData();
 
-
     alert(
-      "تم حذف المنتج ✅"
+      "تم حذف المنتج بنجاح ✅"
     );
-
 
   }catch(error){
 
     console.error(error);
 
     alert(
-      "حصل خطأ أثناء حذف المنتج:\n\n" +
+      "حصل خطأ أثناء حذف المنتج:\n\n"+
       error.message
     );
   }
@@ -1340,33 +1200,29 @@ async function deleteProduct(id){
 
 
 /* =========================
-   CASHIER
+   CART
 ========================= */
 
 function addToCart(){
 
-  const id =
+  const id=
     Number(
       document
         .getElementById("cashProduct")
         .value
     );
 
-
-  const weight =
+  const weight=
     Number(
       document
         .getElementById("cashWeight")
         .value
     );
 
-
-  const product =
+  const product=
     products.find(
-      p =>
-        Number(p.id)===id
+      p=>Number(p.id)===id
     );
-
 
   if(!product){
 
@@ -1374,18 +1230,13 @@ function addToCart(){
     return;
   }
 
-
   if(weight<=0){
 
     alert("اكتب الوزن");
     return;
   }
 
-
-  if(
-    weight >
-    Number(product.stock)
-  ){
+  if(weight>Number(product.stock)){
 
     alert(
       "الكمية المطلوبة أكبر من المخزون"
@@ -1393,7 +1244,6 @@ function addToCart(){
 
     return;
   }
-
 
   cart.push({
 
@@ -1406,16 +1256,14 @@ function addToCart(){
     price:Number(product.price),
 
     total:
-      weight *
+      weight*
       Number(product.price)
 
   });
 
-
   document
     .getElementById("cashWeight")
     .value="";
-
 
   renderCart();
 }
@@ -1431,76 +1279,64 @@ function removeFromCart(index){
 
 function renderCart(){
 
-  const box =
-    document.getElementById(
-      "cart"
-    );
+  const box=
+    document.getElementById("cart");
 
+  if(!cart.length){
 
-  if(cart.length===0){
-
-    box.innerHTML =
+    box.innerHTML=
       '<div class="empty">الفاتورة فارغة</div>';
 
-    document
-      .getElementById("cartTotal")
-      .textContent="0";
+    document.getElementById(
+      "cartTotal"
+    ).textContent="0";
 
     return;
   }
 
-
   let total=0;
 
+  box.innerHTML=
+    cart.map(
+      (item,index)=>{
 
-  box.innerHTML =
-    cart
-      .map(
-        (item,index)=>{
+        total+=item.total;
 
-          total += item.total;
+        return `
+        <div style="
+          padding:10px 0;
+          border-bottom:1px solid #eee
+        ">
 
+          <b>
+            ${escapeHtml(item.name)}
+          </b>
 
-          return `
+          <br>
 
-          <div style="
-            padding:10px 0;
-            border-bottom:1px solid #eee
-          ">
+          ${item.weight} كجم ×
+          ${item.price} ج.م =
 
-            <b>
-              ${escapeHtml(item.name)}
-            </b>
+          <b>
+            ${item.total.toFixed(2)} ج.م
+          </b>
 
-            <br>
+          <button
+            class="delete"
+            onclick="removeFromCart(${index})"
+          >
+            حذف
+          </button>
 
-            ${item.weight} كجم ×
-            ${item.price} ج.م =
+        </div>
+        `;
+      }
+    ).join("");
 
-            <b>
-              ${item.total.toFixed(2)}
-              ج.م
-            </b>
-
-            <button
-              class="delete"
-              onclick="removeFromCart(${index})"
-            >
-              حذف
-            </button>
-
-          </div>
-
-          `;
-        }
-      )
-      .join("");
-
-
-  document
-    .getElementById("cartTotal")
-    .textContent =
-      total.toFixed(2);
+  document.getElementById(
+    "cartTotal"
+  ).textContent=
+    total.toFixed(2);
 }
 
 
@@ -1510,83 +1346,66 @@ function renderCart(){
 
 async function completeSale(){
 
-  if(cart.length===0){
+  if(!cart.length){
 
     alert("الفاتورة فارغة");
     return;
   }
 
-
   try{
 
-    const token =
-      localStorage.getItem(
-        "supabase_access_token"
-      );
-
-
-    const total =
+    const total=
       cart.reduce(
         (sum,item)=>
-          sum + item.total,
+          sum+item.total,
         0
       );
 
-
-    const saleResult =
+    const saleResult=
       await api(
         "sales",
         {
           method:"POST",
 
-          headers:{
-            "Authorization":
-              "Bearer " + token
-          },
-
           body:JSON.stringify({
-
             total:
               Number(
                 total.toFixed(2)
               )
-
           })
         }
       );
 
+    if(
+      !saleResult||
+      !saleResult.length||
+      !saleResult[0].id
+    ){
 
-    const saleId =
+      throw new Error(
+        "لم يتم إنشاء الفاتورة"
+      );
+    }
+
+    const saleId=
       saleResult[0].id;
 
-
-    for(
-      const item of cart
-    ){
+    for(const item of cart){
 
       await api(
         "sale_items",
         {
           method:"POST",
 
-          headers:{
-            "Authorization":
-              "Bearer " + token
-          },
-
           body:JSON.stringify({
 
-            sale_id:
-              saleId,
+            sale_id:saleId,
 
-            product_id:
-              item.productId,
+            product_id:item.productId,
 
-            weight_kg:
-              item.weight,
+            weight_kg:item.weight,
 
-            unit_price:
-              item.price,
+            unit_price:item.price,
 
             line_total:
               Number(
@@ -1597,71 +1416,57 @@ async function completeSale(){
         }
       );
 
-
-      const product =
+      const product=
         products.find(
-          p =>
-            Number(p.id) ===
+          p=>
+            Number(p.id)===
             Number(item.productId)
         );
 
-
       if(product){
 
-        const newStock =
+        const newStock=
           Math.max(
             0,
-            Number(product.stock) -
+            Number(product.stock)-
             Number(item.weight)
           );
 
-
         await api(
-          "products?id=eq." +
+          "products?id=eq."+
           encodeURIComponent(
             item.productId
           ),
           {
             method:"PATCH",
 
-            headers:{
-              "Authorization":
-                "Bearer " + token
-            },
-
             body:JSON.stringify({
-
               stock:
                 Number(
                   newStock.toFixed(2)
                 )
-
             })
           }
         );
       }
     }
 
-
     cart=[];
-
 
     await loadData();
 
     renderCart();
 
-
     alert(
       "تم تسجيل الفاتورة وخصم المخزون أونلاين ✅"
     );
-
 
   }catch(error){
 
     console.error(error);
 
     alert(
-      "حصل خطأ أثناء تسجيل الفاتورة:\n\n" +
+      "حصل خطأ أثناء تسجيل الفاتورة:\n\n"+
       error.message
     );
   }
@@ -1669,73 +1474,66 @@ async function completeSale(){
 
 
 /* =========================
-   PRODUCTS RENDER
+   PRODUCTS
 ========================= */
 
 function renderProducts(){
 
-  const table =
+  const table=
     document.getElementById(
       "productsTable"
     );
 
+  if(!products.length){
 
-  if(products.length===0){
-
-    table.innerHTML =
+    table.innerHTML=
       '<tr><td colspan="5" class="empty">لا توجد منتجات حتى الآن</td></tr>';
 
     return;
   }
 
+  table.innerHTML=
+    products.map(
+      p=>`
 
-  table.innerHTML =
-    products
-      .map(
-        p=>`
+      <tr>
 
-        <tr>
+        <td>
+          ${escapeHtml(p.name)}
+        </td>
 
-          <td>
-            ${escapeHtml(p.name)}
-          </td>
+        <td>
+          ${Number(p.price).toFixed(2)} ج.م
+        </td>
 
-          <td>
-            ${Number(p.price).toFixed(2)}
-            ج.م
-          </td>
+        <td>
+          ${Number(p.stock).toFixed(2)} كجم
+        </td>
 
-          <td>
-            ${Number(p.stock).toFixed(2)}
-            كجم
-          </td>
+        <td>
+          ${
+            (
+              Number(p.price)*
+              Number(p.stock)
+            ).toFixed(2)
+          } ج.م
+        </td>
 
-          <td>
-            ${
-              (
-                Number(p.price) *
-                Number(p.stock)
-              ).toFixed(2)
-            }
-            ج.م
-          </td>
+        <td>
 
-          <td>
+          <button
+            class="delete"
+            onclick="deleteProduct(${p.id})"
+          >
+            حذف
+          </button>
 
-            <button
-              class="delete"
-              onclick="deleteProduct(${p.id})"
-            >
-              حذف
-            </button>
+        </td>
 
-          </td>
+      </tr>
 
-        </tr>
-
-        `
-      )
-      .join("");
+      `
+    ).join("");
 }
 
 
@@ -1745,57 +1543,50 @@ function renderProducts(){
 
 function renderStock(){
 
-  const table =
+  const table=
     document.getElementById(
       "stockTable"
     );
 
+  if(!products.length){
 
-  if(products.length===0){
-
-    table.innerHTML =
+    table.innerHTML=
       '<tr><td colspan="4" class="empty">لا يوجد مخزون</td></tr>';
 
     return;
   }
 
+  table.innerHTML=
+    products.map(
+      p=>`
 
-  table.innerHTML =
-    products
-      .map(
-        p=>`
+      <tr>
 
-        <tr>
+        <td>
+          ${escapeHtml(p.name)}
+        </td>
 
-          <td>
-            ${escapeHtml(p.name)}
-          </td>
+        <td>
+          ${Number(p.stock).toFixed(2)} كجم
+        </td>
 
-          <td>
-            ${Number(p.stock).toFixed(2)}
-            كجم
-          </td>
+        <td>
+          ${Number(p.price).toFixed(2)} ج.م
+        </td>
 
-          <td>
-            ${Number(p.price).toFixed(2)}
-            ج.م
-          </td>
+        <td>
+          ${
+            (
+              Number(p.price)*
+              Number(p.stock)
+            ).toFixed(2)
+          } ج.م
+        </td>
 
-          <td>
-            ${
-              (
-                Number(p.price) *
-                Number(p.stock)
-              ).toFixed(2)
-            }
-            ج.م
-          </td>
+      </tr>
 
-        </tr>
-
-        `
-      )
-      .join("");
+      `
+    ).join("");
 }
 
 
@@ -1805,38 +1596,34 @@ function renderStock(){
 
 function renderCashProducts(){
 
-  const select =
+  const select=
     document.getElementById(
       "cashProduct"
     );
 
+  if(!products.length){
 
-  if(products.length===0){
-
-    select.innerHTML =
+    select.innerHTML=
       "<option>لا توجد منتجات</option>";
 
     return;
   }
 
+  select.innerHTML=
+    products.map(
+      p=>`
 
-  select.innerHTML =
-    products
-      .map(
-        p=>`
+      <option value="${p.id}">
 
-        <option value="${p.id}">
+        ${escapeHtml(p.name)}
+        —
+        ${Number(p.price).toFixed(2)}
+        ج.م/كجم
 
-          ${escapeHtml(p.name)}
-          —
-          ${Number(p.price).toFixed(2)}
-          ج.م/كجم
+      </option>
 
-        </option>
-
-        `
-      )
-      .join("");
+      `
+    ).join("");
 }
 
 
@@ -1846,60 +1633,54 @@ function renderCashProducts(){
 
 function renderDashboard(){
 
-  const today =
+  const today=
     new Date()
       .toISOString()
       .slice(0,10);
 
-
-  const todaySales =
+  const todaySales=
     sales
       .filter(
-        s =>
+        s=>
           String(s.created_at)
             .slice(0,10)===today
       )
       .reduce(
         (sum,s)=>
-          sum + Number(s.total),
+          sum+Number(s.total),
         0
       );
 
-
-  const stockValue =
+  const stockValue=
     products.reduce(
       (sum,p)=>
-        sum +
-        Number(p.price) *
+        sum+
+        Number(p.price)*
         Number(p.stock),
       0
     );
 
+  document.getElementById(
+    "salesToday"
+  ).textContent=
+    todaySales.toFixed(2)+
+    " ج.م";
 
-  document
-    .getElementById("salesToday")
-    .textContent =
-      todaySales.toFixed(2) +
-      " ج.م";
+  document.getElementById(
+    "invoiceCount"
+  ).textContent=
+    sales.length;
 
+  document.getElementById(
+    "productCount"
+  ).textContent=
+    products.length;
 
-  document
-    .getElementById("invoiceCount")
-    .textContent =
-      sales.length;
-
-
-  document
-    .getElementById("productCount")
-    .textContent =
-      products.length;
-
-
-  document
-    .getElementById("stockValue")
-    .textContent =
-      stockValue.toFixed(2) +
-      " ج.م";
+  document.getElementById(
+    "stockValue"
+  ).textContent=
+    stockValue.toFixed(2)+
+    " ج.م";
 }
 
 
@@ -1909,110 +1690,87 @@ function renderDashboard(){
 
 function renderSales(){
 
-  const table =
+  const table=
     document.getElementById(
       "salesTable"
     );
 
-
   if(!sales.length){
 
-    table.innerHTML =
+    table.innerHTML=
       '<tr><td colspan="6" class="empty">لا توجد فواتير حتى الآن</td></tr>';
 
     return;
   }
 
+  table.innerHTML=
+    sales.map(
+      sale=>{
 
-  table.innerHTML =
-    sales
-      .map(
-        sale=>{
+        const invoiceNumber=
+          sale.invoice_no||
+          ("#"+sale.id);
 
-          const invoiceNumber =
-            sale.invoice_no ||
-            ("#" + sale.id);
+        const payment=
+          sale.payment_method||
+          "cash";
 
+        const paymentText=
+          payment==="cash"
+          ? "نقدي"
+          : payment;
 
-          const date =
-            formatDate(
-              sale.created_at
-            );
+        return `
 
+        <tr>
 
-          const payment =
-            sale.payment_method ||
-            "cash";
+          <td>
+            ${escapeHtml(invoiceNumber)}
+          </td>
 
+          <td>
+            ${formatDate(sale.created_at)}
+          </td>
 
-          const paymentText =
-            payment === "cash"
-            ? "نقدي"
-            : payment;
+          <td>
+            ${escapeHtml(paymentText)}
+          </td>
 
+          <td>
+            ${Number(sale.discount||0).toFixed(2)}
+            ج.م
+          </td>
 
-          const discount =
-            Number(
-              sale.discount || 0
-            ).toFixed(2);
+          <td>
+            <b>
+              ${Number(sale.total||0).toFixed(2)}
+              ج.م
+            </b>
+          </td>
 
+          <td>
 
-          const total =
-            Number(
-              sale.total || 0
-            ).toFixed(2);
+            <button
+              class="viewBtn"
+              onclick="viewInvoice(${sale.id})"
+            >
+              عرض
+            </button>
 
+            <button
+              class="printBtn"
+              onclick="printInvoice(${sale.id})"
+            >
+              طباعة
+            </button>
 
-          return `
+          </td>
 
-          <tr>
+        </tr>
 
-            <td>
-              ${escapeHtml(invoiceNumber)}
-            </td>
-
-            <td>
-              ${date}
-            </td>
-
-            <td>
-              ${escapeHtml(paymentText)}
-            </td>
-
-            <td>
-              ${discount} ج.م
-            </td>
-
-            <td>
-              <b>
-                ${total} ج.م
-              </b>
-            </td>
-
-            <td>
-
-              <button
-                class="viewBtn"
-                onclick="viewInvoice(${sale.id})"
-              >
-                عرض
-              </button>
-
-              <button
-                class="printBtn"
-                onclick="printInvoice(${sale.id})"
-              >
-                طباعة
-              </button>
-
-            </td>
-
-          </tr>
-
-          `;
-        }
-      )
-      .join("");
+        `;
+      }
+    ).join("");
 }
 
 
@@ -2020,25 +1778,16 @@ function renderSales(){
    VIEW INVOICE
 ========================= */
 
-async function viewInvoice(
-  saleId
-){
+async function viewInvoice(saleId){
 
   try{
 
-    const token =
-      localStorage.getItem(
-        "supabase_access_token"
-      );
-
-
-    const sale =
+    const sale=
       sales.find(
-        s =>
-          Number(s.id) ===
+        s=>
+          Number(s.id)===
           Number(saleId)
       );
-
 
     if(!sale){
 
@@ -2046,75 +1795,35 @@ async function viewInvoice(
       return;
     }
 
-
-    const items =
+    const items=
       await api(
-        "sale_items?sale_id=eq." +
-        encodeURIComponent(saleId) +
-        "&select=*",
-        {
-          headers:{
-            "Authorization":
-              "Bearer " + token
-          }
-        }
-      ) || [];
+        "sale_items?sale_id=eq."+
+        encodeURIComponent(saleId)+
+        "&select=*"
+      )||[];
 
-
-    let productNames = {};
-
-
-    for(
-      const item of items
-    ){
-
-      const product =
-        products.find(
-          p =>
-            Number(p.id) ===
-            Number(item.product_id)
-        );
-
-
-      productNames[item.product_id] =
-        product
-        ? product.name
-        : "منتج";
-    }
-
-
-    const invoiceNumber =
-      sale.invoice_no ||
-      ("#" + sale.id);
-
-
-    let html = `
+    let html=`
 
       <div class="receipt">
 
         <div class="receiptHeader">
 
-          <h2>
-            🥩 Easlam Gaber
-          </h2>
+          <h2>🥩 Easlam Gaber</h2>
 
-          <div>
-            Butchery
-          </div>
+          <div>Butchery</div>
 
-          <div>
-            📍 مركز ناصر - بوش
-          </div>
+          <div>📍 مركز ناصر - بوش</div>
 
-          <div>
-            📞 01111981239
-          </div>
+          <div>📞 01111981239</div>
 
           <hr>
 
           <b>
             فاتورة رقم:
-            ${escapeHtml(invoiceNumber)}
+            ${escapeHtml(
+              sale.invoice_no||
+              "#"+sale.id
+            )}
           </b>
 
           <br>
@@ -2125,10 +1834,9 @@ async function viewInvoice(
 
     `;
 
+    if(!items.length){
 
-    if(items.length===0){
-
-      html += `
+      html+=`
         <div class="empty">
           لا توجد تفاصيل لهذه الفاتورة
         </div>
@@ -2136,93 +1844,75 @@ async function viewInvoice(
 
     }else{
 
-      items.forEach(
-        item=>{
+      for(const item of items){
 
-          const name =
-            productNames[
-              item.product_id
-            ] || "منتج";
+        const product=
+          products.find(
+            p=>
+              Number(p.id)===
+              Number(item.product_id)
+          );
 
+        const name=
+          product
+          ? product.name
+          : "منتج";
 
-          const weight =
-            Number(
-              item.weight_kg || 0
-            );
+        const weight=
+          Number(item.weight_kg||0);
 
+        const price=
+          Number(item.unit_price||0);
 
-          const price =
-            Number(
-              item.unit_price || 0
-            );
+        const lineTotal=
+          Number(item.line_total||0);
 
+        html+=`
 
-          const lineTotal =
-            Number(
-              item.line_total || 0
-            );
+          <div class="receiptRow">
 
+            <div>
 
-          html += `
+              <b>
+                ${escapeHtml(name)}
+              </b>
 
-            <div class="receiptRow">
+              <br>
 
-              <div>
-
-                <b>
-                  ${escapeHtml(name)}
-                </b>
-
-                <br>
-
-                ${weight.toFixed(2)}
-                كجم ×
-                ${price.toFixed(2)}
-                ج.م
-
-              </div>
-
-              <div>
-
-                <b>
-                  ${lineTotal.toFixed(2)}
-                  ج.م
-                </b>
-
-              </div>
+              ${weight.toFixed(2)}
+              كجم ×
+              ${price.toFixed(2)}
+              ج.م
 
             </div>
 
-          `;
-        }
-      );
+            <div>
+
+              <b>
+                ${lineTotal.toFixed(2)}
+                ج.م
+              </b>
+
+            </div>
+
+          </div>
+
+        `;
+      }
     }
 
-
-    const discount =
-      Number(
-        sale.discount || 0
-      );
-
-
-    const total =
-      Number(
-        sale.total || 0
-      );
-
-
-    html += `
+    html+=`
 
       <div class="receiptTotal">
 
         الخصم:
-        ${discount.toFixed(2)}
+        ${Number(sale.discount||0).toFixed(2)}
         ج.م
 
         <br><br>
 
         الإجمالي:
-        ${total.toFixed(2)}
+        ${Number(sale.total||0).toFixed(2)}
         ج.م
 
       </div>
@@ -2246,158 +1936,101 @@ async function viewInvoice(
 
     `;
 
-
-    const box =
+    const box=
       document.getElementById(
         "receiptBox"
       );
 
-
     box.innerHTML=html;
 
-    box.classList.remove(
-      "hidden"
-    );
-
+    box.classList.remove("hidden");
 
     box.scrollIntoView({
       behavior:"smooth"
     });
 
-
   }catch(error){
 
-    console.error(error);
-
     alert(
-      "حصل خطأ أثناء عرض الفاتورة:\n\n" +
+      "حصل خطأ أثناء عرض الفاتورة:\n\n"+
       error.message
     );
   }
 }
 
 
-/* =========================
-   CLOSE RECEIPT
-========================= */
-
 function closeReceipt(){
 
-  const box =
+  const box=
     document.getElementById(
       "receiptBox"
     );
 
-  box.classList.add(
-    "hidden"
-  );
+  box.classList.add("hidden");
 
   box.innerHTML="";
 }
 
 
 /* =========================
-   PRINT INVOICE
+   PRINT
 ========================= */
 
-async function printInvoice(
-  saleId
-){
+async function printInvoice(saleId){
 
   try{
 
-    const token =
-      localStorage.getItem(
-        "supabase_access_token"
-      );
-
-
-    const sale =
+    const sale=
       sales.find(
-        s =>
-          Number(s.id) ===
+        s=>
+          Number(s.id)===
           Number(saleId)
       );
 
-
     if(!sale){
 
-      alert(
-        "الفاتورة غير موجودة"
-      );
-
+      alert("الفاتورة غير موجودة");
       return;
     }
 
-
-    const items =
+    const items=
       await api(
-        "sale_items?sale_id=eq." +
-        encodeURIComponent(saleId) +
-        "&select=*",
-        {
-          headers:{
-            "Authorization":
-              "Bearer " + token
-          }
-        }
-      ) || [];
-
+        "sale_items?sale_id=eq."+
+        encodeURIComponent(saleId)+
+        "&select=*"
+      )||[];
 
     let receiptItems="";
 
+    for(const item of items){
 
-    for(
-      const item of items
-    ){
-
-      const product =
+      const product=
         products.find(
-          p =>
-            Number(p.id) ===
+          p=>
+            Number(p.id)===
             Number(item.product_id)
         );
 
-
-      const name =
+      const name=
         product
         ? product.name
         : "منتج";
 
-
-      const weight =
-        Number(
-          item.weight_kg || 0
-        );
-
-
-      const price =
-        Number(
-          item.unit_price || 0
-        );
-
-
-      const lineTotal =
-        Number(
-          item.line_total || 0
-        );
-
-
-      receiptItems += `
+      receiptItems+=`
 
         <div class="row">
 
           <div>
             ${escapeHtml(name)}
             <br>
-            ${weight.toFixed(2)}
+            ${Number(item.weight_kg||0).toFixed(2)}
             كجم ×
-            ${price.toFixed(2)}
+            ${Number(item.unit_price||0).toFixed(2)}
             ج.م
           </div>
 
           <div>
-            ${lineTotal.toFixed(2)}
+            ${Number(item.line_total||0).toFixed(2)}
             ج.م
           </div>
 
@@ -2406,31 +2039,16 @@ async function printInvoice(
       `;
     }
 
+    const invoiceNumber=
+      sale.invoice_no||
+      "#"+sale.id;
 
-    const invoiceNumber =
-      sale.invoice_no ||
-      ("#" + sale.id);
-
-
-    const discount =
-      Number(
-        sale.discount || 0
-      );
-
-
-    const total =
-      Number(
-        sale.total || 0
-      );
-
-
-    const printWindow =
+    const printWindow=
       window.open(
         "",
         "_blank",
         "width=500,height=700"
       );
-
 
     if(!printWindow){
 
@@ -2440,7 +2058,6 @@ async function printInvoice(
 
       return;
     }
-
 
     printWindow.document.write(`
 
@@ -2466,13 +2083,9 @@ async function printInvoice(
             color:#000
           }
 
-          .center{
-            text-align:center
-          }
+          .center{text-align:center}
 
-          h2{
-            margin:5px 0
-          }
+          h2{margin:5px 0}
 
           .line{
             border-top:1px dashed #000;
@@ -2495,11 +2108,7 @@ async function printInvoice(
           }
 
           @media print{
-
-            body{
-              width:80mm
-            }
-
+            body{width:80mm}
           }
 
         </style>
@@ -2510,21 +2119,13 @@ async function printInvoice(
 
         <div class="center">
 
-          <h2>
-            🥩 Easlam Gaber
-          </h2>
+          <h2>🥩 Easlam Gaber</h2>
 
-          <div>
-            Butchery
-          </div>
+          <div>Butchery</div>
 
-          <div>
-            مركز ناصر - بوش
-          </div>
+          <div>مركز ناصر - بوش</div>
 
-          <div>
-            01111981239
-          </div>
+          <div>01111981239</div>
 
           <div class="line"></div>
 
@@ -2547,14 +2148,14 @@ async function printInvoice(
 
         <div>
           الخصم:
-          ${discount.toFixed(2)}
+          ${Number(sale.discount||0).toFixed(2)}
           ج.م
         </div>
 
         <div class="total">
 
           الإجمالي:
-          ${total.toFixed(2)}
+          ${Number(sale.total||0).toFixed(2)}
           ج.م
 
         </div>
@@ -2568,9 +2169,7 @@ async function printInvoice(
         <script>
 
           window.onload=function(){
-
             window.print();
-
           };
 
         <\/script>
@@ -2581,16 +2180,12 @@ async function printInvoice(
 
     `);
 
-
     printWindow.document.close();
-
 
   }catch(error){
 
-    console.error(error);
-
     alert(
-      "حصل خطأ أثناء طباعة الفاتورة:\n\n" +
+      "حصل خطأ أثناء طباعة الفاتورة:\n\n"+
       error.message
     );
   }
@@ -2598,32 +2193,18 @@ async function printInvoice(
 
 
 /* =========================
-   FORMAT DATE
+   HELPERS
 ========================= */
 
-function formatDate(
-  value
-){
+function formatDate(value){
 
-  if(!value){
+  if(!value) return "-";
 
-    return "-";
-  }
-
-
-  const date =
+  const date=
     new Date(value);
 
-
-  if(
-    isNaN(
-      date.getTime()
-    )
-  ){
-
+  if(isNaN(date.getTime()))
     return String(value);
-  }
-
 
   return date.toLocaleString(
     "ar-EG",
@@ -2637,10 +2218,6 @@ function formatDate(
   );
 }
 
-
-/* =========================
-   RENDER ALL
-========================= */
 
 function renderAll(){
 
@@ -2656,152 +2233,105 @@ function renderAll(){
 }
 
 
-/* =========================
-   SECURITY HTML
-========================= */
-
-function escapeHtml(
-  value
-){
+function escapeHtml(value){
 
   return String(value)
-
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
 
 /* =========================
-   CHECK EXISTING LOGIN
+   EXISTING LOGIN
 ========================= */
 
 async function checkExistingLogin(){
 
-  const token =
+  const token=
     localStorage.getItem(
       "supabase_access_token"
     );
 
-
   if(!token){
 
     showLogin();
-
     return;
   }
 
-
   try{
 
-    const response =
+    const response=
       await fetch(
-        SUPABASE_URL +
+        SUPABASE_URL+
         "/auth/v1/user",
         {
           headers:{
             "apikey":SUPABASE_KEY,
 
             "Authorization":
-              "Bearer " + token
+              "Bearer "+token
           }
         }
       );
 
-
     if(!response.ok){
 
       clearSession();
-
       showLogin();
-
       return;
     }
 
-
-    const user =
+    const user=
       await response.json();
 
-
-    const roleResponse =
+    const roleResponse=
       await fetch(
-        SUPABASE_URL +
-        "/rest/v1/user_roles?user_id=eq." +
-        encodeURIComponent(
-          user.id
-        ) +
+        SUPABASE_URL+
+        "/rest/v1/user_roles?user_id=eq."+
+        encodeURIComponent(user.id)+
         "&select=role",
         {
           headers:{
             "apikey":SUPABASE_KEY,
 
             "Authorization":
-              "Bearer " + token
+              "Bearer "+token
           }
         }
       );
 
-
     if(!roleResponse.ok){
 
       clearSession();
-
       showLogin();
-
       return;
     }
 
-
-    const roles =
+    const roles=
       await roleResponse.json();
 
-
     if(
-      !roles.length ||
-      roles[0].role !== "admin"
+      !roles.length||
+      roles[0].role!=="admin"
     ){
 
       clearSession();
-
       showLogin();
-
       return;
     }
-
 
     document
       .getElementById("loginScreen")
       .classList.add("hidden");
 
-
     document
       .getElementById("app")
       .classList.remove("hidden");
 
-
     await loadData();
-
 
   }catch(error){
 
