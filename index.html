@@ -39,6 +39,8 @@ th,td{padding:12px;border-bottom:1px solid #eee;text-align:right}
 .viewBtn{background:#151719;color:#fff;border:0;border-radius:7px;padding:7px 12px;cursor:pointer}
 .printBtn{background:#ddd;color:#222;border:0;border-radius:7px;padding:7px 12px;cursor:pointer}
 .total{font-size:24px;font-weight:bold;margin:18px 0}
+.discountBox{background:#f8f8f8;padding:15px;border-radius:10px;margin-top:15px}
+.finalTotal{font-size:26px;font-weight:bold;margin:12px 0}
 .empty{text-align:center;color:#777;padding:25px}
 .status{margin-bottom:15px;padding:10px;border-radius:9px;background:#eef7ee;color:#216b21}
 .error{background:#fdecec!important;color:#a11!important}
@@ -262,14 +264,60 @@ th,td{padding:8px 5px;font-size:13px}
 
 <div id="cart"></div>
 
-<div class="total">
-الإجمالي:
-<span id="cartTotal">0</span>
+<div style="margin-top:15px">
+
+<div>
+إجمالي الأصناف:
+<b>
+<span id="cartSubtotal">0.00</span>
 ج.م
+</b>
 </div>
 
-<button class="primary" onclick="completeSale()">
-تأكيد البيع
+<div class="discountBox">
+
+<label><b>💰 الخصم</b></label>
+
+<input
+id="saleDiscount"
+type="number"
+step="0.01"
+min="0"
+value="0"
+placeholder="اكتب قيمة الخصم بالجنيه"
+oninput="updateCartTotal()"
+>
+
+</div>
+
+<div style="margin-top:15px">
+
+<label><b>💳 طريقة الدفع</b></label>
+
+<select id="paymentMethod">
+
+<option value="cash">💵 كاش</option>
+
+<option value="transfer">📱 تحويل</option>
+
+<option value="card">💳 بطاقة</option>
+
+</select>
+
+</div>
+
+<div class="finalTotal">
+
+الإجمالي النهائي:
+<span id="cartTotal">0.00</span>
+ج.م
+
+</div>
+
+</div>
+
+<button class="primary" style="width:100%" onclick="completeSale()">
+تأكيد البيع وحفظ الفاتورة
 </button>
 
 </div>
@@ -321,7 +369,6 @@ th,td{padding:8px 5px;font-size:13px}
 const SUPABASE_URL =
 "https://atfhwssyxtjzucftorfh.supabase.co";
 
-/* المفتاح الصحيح */
 const SUPABASE_KEY =
 "sb_publishable_pBDAFBhY17xfTjol-K2vFQ_8oxNUZtp";
 
@@ -455,9 +502,6 @@ localStorage.setItem(
 "supabase_user_id",
 data.user.id
 );
-
-
-/* التحقق من صلاحية Admin */
 
 const roleResponse =
 await fetch(
@@ -921,19 +965,23 @@ box.innerHTML =
 '<div class="empty">الفاتورة فارغة</div>';
 
 document.getElementById(
+"cartSubtotal"
+).textContent="0.00";
+
+document.getElementById(
 "cartTotal"
-).textContent="0";
+).textContent="0.00";
 
 return;
 }
 
-let total=0;
+let subtotal=0;
 
 box.innerHTML =
 cart.map(
 (item,index)=>{
 
-total+=item.total;
+subtotal+=item.total;
 
 return `
 <div style="
@@ -966,9 +1014,62 @@ onclick="removeFromCart(${index})"
 ).join("");
 
 document.getElementById(
-"cartTotal"
+"cartSubtotal"
 ).textContent=
-total.toFixed(2);
+subtotal.toFixed(2);
+
+updateCartTotal();
+
+}
+
+
+/* =========================
+   UPDATE TOTAL + DISCOUNT
+========================= */
+
+function updateCartTotal(){
+
+const subtotal =
+cart.reduce(
+(sum,item)=>sum+Number(item.total),
+0
+);
+
+let discount =
+Number(
+document.getElementById("saleDiscount")?.value||0
+);
+
+if(discount<0){
+discount=0;
+}
+
+if(discount>subtotal){
+discount=subtotal;
+}
+
+const finalTotal =
+subtotal-discount;
+
+const subtotalElement =
+document.getElementById("cartSubtotal");
+
+const totalElement =
+document.getElementById("cartTotal");
+
+if(subtotalElement){
+
+subtotalElement.textContent =
+subtotal.toFixed(2);
+
+}
+
+if(totalElement){
+
+totalElement.textContent =
+finalTotal.toFixed(2);
+
+}
 
 }
 
@@ -987,11 +1088,37 @@ return;
 
 try{
 
-const total =
+const subtotal =
 cart.reduce(
 (sum,item)=>sum+item.total,
 0
 );
+
+let discount =
+Number(
+document.getElementById("saleDiscount").value||0
+);
+
+if(discount<0){
+discount=0;
+}
+
+if(discount>subtotal){
+
+alert(
+"الخصم لا يمكن أن يكون أكبر من إجمالي الفاتورة"
+);
+
+return;
+}
+
+const paymentMethod =
+document.getElementById(
+"paymentMethod"
+).value;
+
+const finalTotal =
+subtotal-discount;
 
 const saleResult =
 await api(
@@ -1000,7 +1127,18 @@ await api(
 method:"POST",
 
 body:JSON.stringify({
-total:Number(total.toFixed(2))
+
+total:Number(
+finalTotal.toFixed(2)
+),
+
+discount:Number(
+discount.toFixed(2)
+),
+
+payment_method:
+paymentMethod
+
 })
 }
 );
@@ -1078,12 +1216,20 @@ newStock.toFixed(2)
 
 cart=[];
 
+document.getElementById(
+"saleDiscount"
+).value="0";
+
+document.getElementById(
+"paymentMethod"
+).value="cash";
+
 await loadData();
 
 renderCart();
 
 alert(
-"تم تسجيل الفاتورة وخصم المخزون أونلاين ✅"
+"تم تسجيل الفاتورة والخصم وطريقة الدفع وخصم المخزون أونلاين ✅"
 );
 
 }
@@ -1338,7 +1484,14 @@ sale.payment_method||
 const paymentText =
 payment==="cash"
 ?"نقدي"
-:payment;
+:
+payment==="transfer"
+?"تحويل"
+:
+payment==="card"
+?"بطاقة"
+:
+payment;
 
 return `
 
@@ -1522,17 +1675,47 @@ ${lineTotal.toFixed(2)}
 
 }
 
+const payment =
+sale.payment_method||
+"cash";
+
+const paymentText =
+payment==="cash"
+?"نقدي"
+:
+payment==="transfer"
+?"تحويل"
+:
+payment==="card"
+?"بطاقة"
+:
+payment;
+
 html+=`
 
 <div class="receiptTotal">
+
+إجمالي الأصناف:
+${(
+Number(sale.total||0)+
+Number(sale.discount||0)
+).toFixed(2)}
+ج.م
+
+<br>
 
 الخصم:
 ${Number(sale.discount||0).toFixed(2)}
 ج.م
 
+<br>
+
+طريقة الدفع:
+${escapeHtml(paymentText)}
+
 <br><br>
 
-الإجمالي:
+الإجمالي النهائي:
 ${Number(sale.total||0).toFixed(2)}
 ج.م
 
@@ -1621,6 +1804,8 @@ encodeURIComponent(saleId)+
 
 let receiptItems="";
 
+let subtotal=0;
+
 for(const item of items){
 
 const product =
@@ -1632,6 +1817,11 @@ const name =
 product
 ?product.name
 :"منتج";
+
+const lineTotal =
+Number(item.line_total||0);
+
+subtotal+=lineTotal;
 
 receiptItems+=`
 
@@ -1652,7 +1842,7 @@ ${Number(item.unit_price||0).toFixed(2)}
 
 <div>
 
-${Number(item.line_total||0).toFixed(2)}
+${lineTotal.toFixed(2)}
 ج.م
 
 </div>
@@ -1662,6 +1852,28 @@ ${Number(item.line_total||0).toFixed(2)}
 `;
 
 }
+
+const discount =
+Number(sale.discount||0);
+
+const finalTotal =
+Number(sale.total||0);
+
+const payment =
+sale.payment_method||
+"cash";
+
+const paymentText =
+payment==="cash"
+?"نقدي"
+:
+payment==="transfer"
+?"تحويل"
+:
+payment==="card"
+?"بطاقة"
+:
+payment;
 
 const invoiceNumber =
 sale.invoice_no||
@@ -1708,6 +1920,7 @@ color:#000
 }
 
 .center{text-align:center}
+
 h2{margin:5px 0}
 
 .line{
@@ -1724,10 +1937,26 @@ border-bottom:1px solid #ddd;
 font-size:13px
 }
 
+.subtotal{
+font-size:14px;
+margin-top:10px
+}
+
+.discount{
+font-size:14px;
+margin-top:7px
+}
+
 .total{
 font-size:19px;
 font-weight:bold;
 margin-top:15px
+}
+
+.payment{
+font-size:15px;
+font-weight:bold;
+margin-top:10px
 }
 
 @media print{
@@ -1767,16 +1996,33 @@ ${receiptItems}
 
 <div class="line"></div>
 
-<div>
-الخصم:
-${Number(sale.discount||0).toFixed(2)}
+<div class="subtotal">
+
+إجمالي الأصناف:
+${subtotal.toFixed(2)}
 ج.م
+
+</div>
+
+<div class="discount">
+
+الخصم:
+${discount.toFixed(2)}
+ج.م
+
+</div>
+
+<div class="payment">
+
+طريقة الدفع:
+${escapeHtml(paymentText)}
+
 </div>
 
 <div class="total">
 
-الإجمالي:
-${Number(sale.total||0).toFixed(2)}
+الإجمالي النهائي:
+${finalTotal.toFixed(2)}
 ج.م
 
 </div>
@@ -1812,7 +2058,6 @@ error.message
 );
 
 }
-
 }
 
 
